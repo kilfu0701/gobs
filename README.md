@@ -1,2 +1,2 @@
-# gobs
+# gobx
 Build process with Go.
