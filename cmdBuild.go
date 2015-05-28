@@ -81,11 +81,31 @@ func safariExt(dat map[string]interface{}) int {
 
 	// parse 'path'
 	pathObject := dat["path"].(map[string]interface{})
-	pathTmp := path + "/" + pathObject["tmp"].(string)
-	pathSrc := path + "/" + pathObject["src"].(string)
-	pathDist := path + "/" + pathObject["dist"].(string)
-	pathCerts := path + "/" + pathObject["certs"].(string)
+
+	pathTmp := pathObject["tmp"].(string)
+	if string(pathTmp[0]) != "/" {
+		pathTmp = path + "/" + pathTmp
+	}
+
+	pathSrc := pathObject["src"].(string)
+	if string(pathSrc[0]) != "/" {
+		pathSrc = path + "/" + pathSrc
+	}
+
+	pathDist := pathObject["dist"].(string)
+	if string(pathDist[0]) != "/" {
+		pathDist = path + "/" + pathDist
+	}
+
+	pathCerts := pathObject["certs"].(string)
+	if string(pathCerts[0]) != "/" {
+		pathCerts = path + "/" + pathCerts
+	}
+
 	pathL10n := path + "/" + pathObject["l10n"].(string)
+	if string(pathL10n[0]) != "/" {
+		pathL10n = path + "/" + pathL10n
+	}
 
 	fmt.Println("  pathTmp \t=", pathSrc)
 	fmt.Println("  pathSrc \t=", pathSrc)
@@ -145,6 +165,10 @@ func safariExt(dat map[string]interface{}) int {
 				lines[i+1] = "\t<string>" + buildVersion + "</string>"
 			} else if s == "<key>Description</key>" {
 				lines[i+1] = "\t<string>" + packageDescription + "</string>"
+			} else if s == "<key>Tool Tip</key>" {
+				lines[i+1] = "                <string>" + packageName + "</string>"
+			} else if s == "<key>Label</key>" {
+				lines[i+1] = "                <string>" + packageName + "</string>"
 			}
 		}
 
