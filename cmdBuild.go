@@ -74,7 +74,30 @@ func runBuild(cmd *Command, args []string) int {
 func safariExt(dat map[string]interface{}) int {
 	fmt.Println("Start building 'SafariExt' ...")
 
+	UpdatePlistStr := `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+   <key>Extension Updates</key>
+   <array>
+     <dict>
+       <key>CFBundleIdentifier</key>
+       <string>%s</string>
+       <key>Developer Identifier</key>
+       <string>%s</string>
+       <key>CFBundleVersion</key>
+       <string>%s</string>
+       <key>CFBundleShortVersionString</key>
+       <string>%s</string>
+       <key>URL</key>
+       <string>%s</string>
+     </dict>
+   </array>
+</dict>
+</plist>`
+
 	path, _ := os.Getwd()
+	id := dat["id"].(string)
 	extName := dat["name"].(string)
 
 	fmt.Println("  Name  \t=", extName)
@@ -138,25 +161,29 @@ func safariExt(dat map[string]interface{}) int {
 	}
 
 	locales := dat["locales"].(map[string]interface{})
-	for locale := range locales {
+	for locale, value := range locales {
 		fmt.Println("  locale \t=>", locale, pathL10n+"/"+locale+"/messages.json")
+
+		updateURL := value.(string)
 
 		f, err := ioutil.ReadFile(pathL10n + "/" + locale + "/messages.json")
 		if err != nil {
+			fmt.Println("Parse json error.")
 			panic(err)
 		}
 
 		byt := []byte(string(f))
-		var dat map[string]interface{}
-		if err := json.Unmarshal(byt, &dat); err != nil {
+		var l10n_dat map[string]interface{}
+		if err := json.Unmarshal(byt, &l10n_dat); err != nil {
 			panic(err)
 		}
 
-		packageName := dat["extName"].(map[string]interface{})["message"].(string)
-		packageDescription := dat["extDescription"].(map[string]interface{})["message"].(string)
+		packageName := l10n_dat["extName"].(map[string]interface{})["message"].(string)
+		packageDescription := l10n_dat["extDescription"].(map[string]interface{})["message"].(string)
 
+		// start "Update Manifest"
 		lines := readLine(pathSrc + "/Info.plist")
-
+		hasUpdateURL := false
 		for i := 0; i < len(lines); i++ {
 			s := strings.TrimSpace(lines[i])
 			if s == "<key>CFBundleDisplayName</key>" {
@@ -166,11 +193,30 @@ func safariExt(dat map[string]interface{}) int {
 			} else if s == "<key>Description</key>" {
 				lines[i+1] = "\t<string>" + packageDescription + "</string>"
 			} else if s == "<key>Tool Tip</key>" {
-				lines[i+1] = "                <string>" + packageName + "</string>"
+				lines[i+1] = "\t\t<string>" + packageName + "</string>"
 			} else if s == "<key>Label</key>" {
-				lines[i+1] = "                <string>" + packageName + "</string>"
+				lines[i+1] = "\t\t<string>" + packageName + "</string>"
+			} else if s == "<key>Update Manifest URL</key>" {
+				lines[i+1] = "\t<string>" + updateURL + "</string>"
+				hasUpdateURL = true
 			}
 		}
+
+		if !hasUpdateURL {
+			arr := make([]string, 2)
+			arr[0] = "\t<key>Update Manifest URL</key>"
+			arr[1] = "\t<string>" + updateURL + "</string>"
+
+			for i := 0; i < len(lines); i++ {
+				s := strings.TrimSpace(lines[i])
+				if s == "<key>CFBundleDisplayName</key>" {
+					lines = append(append(lines[:i+2], arr...), lines[i+4:]...)
+					i = len(lines)
+					break
+				}
+			}
+		}
+		// end of "Update Manifest"
 
 		s := ""
 		for _, v := range lines {
@@ -255,6 +301,18 @@ func safariExt(dat map[string]interface{}) int {
 			dest,
 		).Output()
 
+		if err != nil {
+			panic(err)
+		}
+
+		// write Update.plist
+		if dat["developer_id"] == nil {
+			panic("* ERROR * ... 'developer_id' not found in your BuildScript.json.")
+		}
+
+		versionNameWithoutDot := strings.Replace(buildVersion, ".", "", -1)
+		buf := []byte(fmt.Sprintf(UpdatePlistStr, id, dat["developer_id"].(string), versionNameWithoutDot, buildVersion, updateURL))
+		err = ioutil.WriteFile(buildDir+"/Update.plist", buf, 0644)
 		if err != nil {
 			panic(err)
 		}

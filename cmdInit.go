@@ -30,7 +30,9 @@ func init() {
 func runInit(cmd *Command, args []string) int {
 	allCmd := map[string]string{
 		"SafariExt": `{
+    "id": "com.myfirst.safariextension",
     "name": "%s",
+    "developer_id": "1234ABCD",
     "path": {
         "tmp": ".tmp",
         "src": "path/to/%s.safariextension",
@@ -39,9 +41,9 @@ func runInit(cmd *Command, args []string) int {
         "l10n": "L10n"
     },
     "locales": {
-        "en-US": "0",
-        "ja-JP": "1",
-        "zh-TW": "2"
+        "en-US": "https://domain.com/en-US/Update.plist",
+        "ja-JP": "https://domain.com/ja-JP/Update.plist",
+        "zh-TW": "https://domain.com/zh-TW/Update.plist"
     },
     "bin": {
         "xar":     "/usr/local/bin/xar",
