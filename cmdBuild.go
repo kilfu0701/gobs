@@ -201,23 +201,15 @@ func safariExt(dat map[string]interface{}) int {
 				hasUpdateURL = true
 			}
 		}
-		fmt.Println(hasUpdateURL)
-		/*
-			if !hasUpdateURL {
-				arr := make([]string, 2)
-				arr[0] = "\t<key>Update Manifest URL</key>"
-				arr[1] = "\t<string>" + updateURL + "</string>"
 
-				for i := 0; i < len(lines); i++ {
-					s := strings.TrimSpace(lines[i])
-					if s == "<key>CFBundleDisplayName</key>" {
-						lines = append(append(lines[:i+2], arr...), lines[i+4:]...)
-						i = len(lines)
-						break
-					}
-				}
-			}
-		*/
+		if !hasUpdateURL {
+			arr := make([]string, 2)
+			arr[0] = "\t<key>Update Manifest URL</key>"
+			arr[1] = "\t<string>" + updateURL + "</string>"
+
+			lg := len(lines)
+			lines = append(append(lines[:lg-3], arr...), lines[lg-3:]...)
+		}
 		// end of "Update Manifest"
 
 		s := ""
