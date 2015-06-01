@@ -36,7 +36,7 @@ func runInit(cmd *Command, args []string) int {
     "path": {
         "tmp": ".tmp",
         "src": "path/to/%s.safariextension",
-        "dist": "output/Safari",
+        "dist": "output/Safari/$VERSION",
         "certs": "path/to/certs",
         "l10n": "L10n"
     },

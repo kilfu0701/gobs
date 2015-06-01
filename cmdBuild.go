@@ -231,7 +231,15 @@ func safariExt(dat map[string]interface{}) int {
 		}
 
 		// pack
-		buildDir := pathDist + "/" + buildVersion + "/" + locale
+		// check if $VERSION in dist ?
+		idx := strings.Index(pathDist, "$VERSION")
+		buildDir := ""
+		if idx == -1 {
+			buildDir = pathDist + "/" + buildVersion + "/" + locale
+		} else {
+			buildDir = strings.Replace(pathDist, "$VERSION", buildVersion, -1) + "/" + locale
+		}
+
 		os.MkdirAll(buildDir, 0777)
 		dest := buildDir + "/" + extName + ".safariextz"
 		source := extFolderName
