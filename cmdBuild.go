@@ -208,7 +208,7 @@ func safariExt(dat map[string]interface{}) int {
 			arr[1] = "\t<string>" + updateURL + "</string>"
 
 			lg := len(lines)
-			lines = append(append(lines[:lg-3], arr...), lines[lg-3:]...)
+			lines = append(append(lines[:lg-4], arr...), lines[lg-2:]...)
 		}
 		// end of "Update Manifest"
 
