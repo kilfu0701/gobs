@@ -41,9 +41,18 @@ func runInit(cmd *Command, args []string) int {
         "l10n": "L10n"
     },
     "locales": {
-        "en-US": "https://domain.com/en-US/Update.plist",
-        "ja-JP": "https://domain.com/ja-JP/Update.plist",
-        "zh-TW": "https://domain.com/zh-TW/Update.plist"
+        "en-US": {
+            "update_plist": "https://domain.com/en-US/Update.plist",
+            "update_path": "https://domain.com/en-US/MySafariExt.safariextz"
+        },
+        "ja-JP": {
+            "update_plist": "https://domain.com/ja-JP/Update.plist",
+            "update_path": "https://domain.com/ja-JP/MySafariExt.safariextz"
+        }
+        "zh-TW": {
+            "update_plist": "https://domain.com/zh-TW/Update.plist",
+            "update_path": "https://domain.com/zh-TW/MySafariExt.safariextz"
+        }
     },
     "bin": {
         "xar":     "/usr/local/bin/xar",

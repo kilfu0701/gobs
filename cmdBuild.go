@@ -164,7 +164,9 @@ func safariExt(dat map[string]interface{}) int {
 	for locale, value := range locales {
 		fmt.Println("  locale \t=>", locale, pathL10n+"/"+locale+"/messages.json")
 
-		updateURL := value.(string)
+		valueObj := value.(map[string]interface{})
+		updateURL := valueObj["update_plist"].(string)
+		updatePath := valueObj["update_path"].(string)
 
 		f, err := ioutil.ReadFile(pathL10n + "/" + locale + "/messages.json")
 		if err != nil {
@@ -313,7 +315,7 @@ func safariExt(dat map[string]interface{}) int {
 		}
 
 		versionNameWithoutDot := strings.Replace(buildVersion, ".", "", -1)
-		buf := []byte(fmt.Sprintf(UpdatePlistStr, id, dat["developer_id"].(string), versionNameWithoutDot, buildVersion, updateURL))
+		buf := []byte(fmt.Sprintf(UpdatePlistStr, id, dat["developer_id"].(string), versionNameWithoutDot, buildVersion, updatePath))
 		err = ioutil.WriteFile(buildDir+"/Update.plist", buf, 0644)
 		if err != nil {
 			panic(err)
